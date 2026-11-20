@@ -201,7 +201,7 @@ const planSchema = z.object({
   steps: z
     .array(
       z.object({
-        goal: z.string().describe("Que resukleve este paso, en una frase."),
+        goal: z.string().describe("Que resuelve este paso, en una frase."),
         reason: z
           .string()
           .describe("¿porque es necesario? ¿piorque va en esat posicion?"),
@@ -255,21 +255,22 @@ async function withPlanning() {
     findings.push(`[${step.goal}]\n ${text.trim()}`);
   }
 
-  console.log("findings",{findings})
+  console.log("findings", { findings });
 
   // fase 3: sintetizar e integrar todos los pasos
-   const { text: finalPlan } = await generateText({
-      model: model,
-      output: Output.object({
-        schema: planSchema,
-      }),
-      instructions: 'integra los resultados parciales en un operativo final.',
-      prompt: `MISION OBJETIVO: ${MISSION} \n\n` +
+  const { text: finalPlan } = await generateText({
+    model: model,
+    output: Output.object({
+      schema: planSchema,
+    }),
+    instructions: "integra los resultados parciales en un operativo final.",
+    prompt:
+      `MISION OBJETIVO: ${MISSION} \n\n` +
       `RESULTADOS PARCIALES: \n ${findings.join("\n------\n")}`,
-      onStepEnd: tracer.onStepFinish,
-    });
+    onStepEnd: tracer.onStepFinish,
+  });
 
-    console.log('\n\n---OPERATIVO FINAL---\n\n', finalPlan)
+  console.log("\n\n---OPERATIVO FINAL---\n\n", finalPlan);
 
   return tracer.summary();
 }
